@@ -15,7 +15,7 @@ class ObjectDetector():
         self.camera = CameraController()
         self.thymioController = thymioController
 
-        #self.checkWheels()
+        self.checkWheels()
         self.has_goal_threshold = None
         
         self.has_puck_threshold = self.calibrate_has_puck2()
@@ -23,7 +23,7 @@ class ObjectDetector():
         #self.has_puck_threshold =   0.253477649767 ## WHAT ARE ACTUAL VALUES??
         #self.has_goal_threshold2 =  0.476304381127 ## WHAT ARE ACTUAL VALUES??
 
-        #self.checkCalibration()
+        self.checkCalibration()
 
         print "puck threshold is " + str(self.has_puck_threshold)
         print "goal threshold is " + str(self.has_goal_threshold2)
