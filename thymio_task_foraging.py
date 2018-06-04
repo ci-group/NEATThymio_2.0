@@ -94,7 +94,7 @@ class Foraging(TaskEvaluator):
         self.sim_dis_neat = False                       # should be true when we use simulation
         self.phys_dis_neat= True                        # if we use simulation, the physical phys_dis_neat is false
         self.reset_innovations = False                  # reset innovation numbers after generations, false means the cNEAT algorithm
-        self.generations = 30
+        self.generations = 20
         self.popsize = popsize / od_neat_size
     
         # NEAT population parameters
@@ -150,8 +150,8 @@ class Foraging(TaskEvaluator):
             psValues = np.array([psValues[0], psValues[4], psValues[5], psValues[6]],dtype='f')
             
             # get sensor readings
-            bumpingfront = 1 if (psValues[0]>500 or psValues[1]>500) else 0
-            bumpingback = 1 if (psValues[2]>500 or psValues[3]>500) else 0
+            bumpingfront = 1 if (psValues[0]>1400 or psValues[1]>1400) else 0
+            bumpingback = 1 if (psValues[2]>1500 or psValues[3]>1500) else 0
 
             
 
@@ -173,7 +173,11 @@ class Foraging(TaskEvaluator):
             if hasPuck and not seeGoal:
                 self.thymioController.SendEventName('SetColor', [0, 0, 32, 0], reply_handler=dbusReply, error_handler=dbusError)
             if seeGoal:
-                        self.thymioController.SendEventName('SetColor', [32, 0, 0, 0], reply_handler=dbusReply, error_handler=dbusError)
+                self.thymioController.SendEventName('SetColor', [32, 0, 0, 0], reply_handler=dbusReply, error_handler=dbusError)
+            if bumpingfront==1 or bumpingback==1:
+                self.thymioController.SendEventName('SetColor', [32, 32, 0, 0], reply_handler=dbusReply, error_handler=dbusError)
+            
+                                
             
 
             # feed them in network and obtain motorspeed outputs
@@ -223,13 +227,13 @@ class Foraging(TaskEvaluator):
 
 
     def getFitness(self, motorspeed, observation, inputvals):
-        if inputvals[2]==1 and (min(self.thymioController.GetVariable("thymio-II", "prox.ground.reflected")) < 250 and self.timer <= 0 and self.counter > 5):
+        if (inputvals[2]==1 and inputvals[3]==1 and self.timer <= 0 and self.counter > 5):
             print('GOAL!')
             fitness = 10000
             self.timer = 35
             self.counter = 0
             self.haspuckhelper = 0
-        elif inputvals[2]==1 and (min(self.thymioController.GetVariable("thymio-II", "prox.ground.reflected")) < 250):
+        elif (inputvals[2]==1 and (sum(self.thymioController.GetVariable("thymio-II", "prox.ground.reflected")) < 1000) and (min(self.thymioController.GetVariable("thymio-II", "prox.ground.reflected")) < 380)):
             self.counter += 1
             fitness = 1000
         elif inputvals[1] == 1 and inputvals[2] == 1 and self.timer <= 0:

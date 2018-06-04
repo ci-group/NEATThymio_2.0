@@ -589,10 +589,10 @@ class NEATPopulation(SimplePopulation):
 
 
         pop = list(self.population)
-        pop = self._birth(pop)          #returns current pop if no initi is neccesary & speciate
+        pop = self._birth(pop)          #returns current pop if no initi is neccesary 
         
-        pop = self._evaluate_all(pop, evaluator, converter) # evaluate all individuals
         pop = self._speciate(pop)
+        pop = self._evaluate_all(pop, evaluator, converter) # evaluate all individuals
         
         
         # Create a back up for logging because after the evaluation the new individuals are immediately made
@@ -780,15 +780,16 @@ class NEATPopulation(SimplePopulation):
             if individual.distance(specie.representative) <= self.current_compatibility_threshold:
                 #print "received individual and added to existing species"
                 pop.append(individual)
-                specie.members.append(individual)
                 individual.specieid= specie.id
+                specie.members.append(individual)
                 found = True
                 break
             # Create a new species
         if not found:
             #print "received individual and added to new species"
-            s = NEATSpecies(individual, self.specie_id)
             self.specie_id += 1
+            s = NEATSpecies(individual, self.specie_id)
+            individual.specieid=s.id
             self.species.append(s)
             pop.append(individual)
 
@@ -858,8 +859,9 @@ class NEATPopulation(SimplePopulation):
                     break
             # Create a new species
             if not found:
-                s = NEATSpecies(individual, self.specie_id)
                 self.specie_id += 1
+                s = NEATSpecies(individual, self.specie_id)
+                individual.specieid=s.id
                 self.species.append(s)
 
 

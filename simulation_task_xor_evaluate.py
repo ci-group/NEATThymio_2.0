@@ -33,7 +33,7 @@ class XORTask(object):
 
         if not network.node_types[-1](-1000) < -0.95:
             raise Exception("Network should be able to output value of -1, e.g. using a tanh node.")
-        print network.cm
+        #print network.cm
         
         pairs = zip(self.INPUTS, self.OUTPUTS)
         # random.shuffle(pairs)
@@ -43,12 +43,12 @@ class XORTask(object):
         for (i, target) in pairs:
             # Feed with bias, bias is added as the first input node
             i = np.hstack((1.0, i))
-            print "intput"
-            print i
+            # print "intput"
+            #print i
             output = network.feed(i, add_bias=False)
             # Grab the output
-            print "output"
-            print output
+            #print "output"
+            #print output
             output = output[-len(target):]
 
             err = (target - output)

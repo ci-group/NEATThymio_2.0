@@ -28,12 +28,12 @@ from helpers import *
 
 # Set parameters: Foraging task related and network
 time_step = 0.005                      # time step thymio
-max_motor_speed = 150                  # max motor speed thymio
-evaluations = 2000                       # evaluation length
+max_motor_speed = 200                  # max motor speed thymio
+evaluations = 3000                       # evaluation length
 
 
 # Set parameters social
-popsize = 6
+popsize = 24
 
 
 # Adjust pop size based on number of robots
@@ -72,15 +72,15 @@ class Obstacleavoidance(TaskEvaluator):
 
     
         #set task params
-        self.inputs=7                               # number of input nodes with bias node
-        self.sensor_max= [4500,4500,4500,4500,4500,4500] #max values for sensors
-        self.sensor_max_act= [0,0,0,0,0,0] #activation due to obstacles
+        self.inputs=8                               # number of input nodes with bias node
+        self.sensor_max= [4500,4500,4500,4500,4500,4500,4500] #max values for sensors
+        self.sensor_max_act= [0,0,0,0,0,0,0] #activation due to obstacles
         
         self.outputs=2                              # wheel speeds
         self.bias_as_node=False                     # set to false if you already put it in the inputs. Always set to false!
         self.weight_range=(-3., 3.)
-        self.max_depth=5
-        self.max_nodes=15
+        self.max_depth=4
+        self.max_nodes=20
         self.response_default=1                     # bias in the node. what is this used for?
         self.feedforward=True
         
@@ -94,39 +94,39 @@ class Obstacleavoidance(TaskEvaluator):
     
         # NEAT population parameters
         self.elitism = True
-        self.target_species = math.floor(popsize/5)  # target species is the pop size divided by 3
-        self.tournament_selection_k=1
-        self.compatibility_threshold=3.0
-        self.compatibility_threshold_delta=0.4
-        self.min_elitism_size=3 #???
-        self.young_age=5
+        self.target_species = 2 #math.floor(popsize/2)  # target species is the pop size divided by 3
+        self.tournament_selection_k=2
+        self.compatibility_threshold=2.0
+        self.compatibility_threshold_delta=0.1
+        self.min_elitism_size=1 #???
+        self.young_age=3
         self.young_multiplier=1.2 # for whole species
         self.stagnation_age=10        # number of generations the fitness does not increase befor it gets killed (not if having champ)
-        self.old_age=10
-        self.old_multiplier=0.2
-        self.survival=0.75 # survival percentage of specie
+        self.old_age=7
+        self.old_multiplier=0.5
+        self.survival=0.6 # survival percentage of specie
 
 
         # NEAT genotype parameters
         self.types=['tanh']
-        self.prob_add_node=0.01
-        self.prob_add_conn=0.03
-        self.prob_mutate = 0.25
-        self.prob_mutate_weight=0.25 # prop to mutate weight for every connection
-        self.prob_reset_weight=0.1
+        self.prob_add_node=0.05
+        self.prob_add_conn=0.1
+        self.prob_mutate = 0.4
+        self.prob_mutate_weight=0.4 # prop to mutate weight for every connection
+        self.prob_reset_weight=0.05
         self.prob_reenable_conn=0.01
         self.prob_disable_conn=0.01
         self.prob_reenable_parent=0.05  # chance to reenble connection
         self.prob_mutate_bias=0.2
         self.prob_mutate_response=0.0
         self.prob_mutate_type=0.2
-        self.stdev_mutate_weight=0.5   # Used to init a newly added connection (original uses [-1,1] uniform) and to add to mutation
+        self.stdev_mutate_weight=1   # Used to init a newly added connection (original uses [-1,1] uniform) and to add to mutation
         self.stdev_mutate_bias=0.5
         self.stdev_mutate_response=0.5
-        self.initial_weight_stdev=0.5
+        self.initial_weight_stdev=1.5
         self.distance_excess=1.0
         self.distance_disjoint=1.0
-        self.distance_weight=0.4
+        self.distance_weight=0.7
 
     def evaluate(self, evaluee):
         if self.ctrl_client and not self.ctrl_thread_started:
@@ -138,7 +138,7 @@ class Obstacleavoidance(TaskEvaluator):
         
         def ok_call(psValues):
             # get sensor readings
-            psValues = np.array([psValues[0], psValues[1], psValues[3],psValues[4], psValues[5], psValues[6]],dtype='f')
+            psValues = np.array([psValues[0], psValues[1],psValues[2], psValues[3],psValues[4], psValues[5], psValues[6]],dtype='f')
             #print "psValues"
             #print psValues
             

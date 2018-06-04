@@ -8,7 +8,8 @@ class ObjectDetector():
 
     def __init__(self, color_threshold, amount_threshold, thymioController):
         self.color_threshold = color_threshold
-        self.TIMER = 25
+        self.TIMER = 35
+        max_motor_speed= 200
 
         self.red_color_threshold = None
         self.amount_threshold = amount_threshold
@@ -33,12 +34,12 @@ class ObjectDetector():
         left = 1.0
         right = 1.0
         motorspeed = { 'left': left, 'right': right }
-        writeMotorSpeed(self.thymioController, motorspeed)
+        writeMotorSpeed(self.thymioController, motorspeed, max_motor_speed)
         left = -1.0
         right = -1.0
         time.sleep(5)
         motorspeed = { 'left': left, 'right': right }
-        writeMotorSpeed(self.thymioController, motorspeed)
+        writeMotorSpeed(self.thymioController, motorspeed, max_motor_speed)
         time.sleep(5)
         stopThymio(self.thymioController)
         time.sleep(self.TIMER)
@@ -47,26 +48,28 @@ class ObjectDetector():
         puck_center, puck_size = self.detect_puck()
         goal_center, goal_size = self.detect_goal()
         counter = 0
-        while not ((puck_center[0] < self.has_puck_threshold and puck_size > 0.05) and counter > 5 and min(self.thymioController.GetVariable("thymio-II", "prox.ground.reflected")) < 250):
+        hasPuck=False
+        seeGoal = False
+        while not (seeGoal and hasPuck and counter > 3):
             puck_center, puck_size = self.detect_puck()
             goal_center, goal_size = self.detect_goal()
 
-            if (puck_center[0] < self.has_puck_threshold and puck_size > 0.05) and min(self.thymioController.GetVariable("thymio-II", "prox.ground.reflected")) < 250:
+            if (seeGoal and hasPuck and (sum(self.thymioController.GetVariable("thymio-II", "prox.ground.reflected")) < 1000) and (min(self.thymioController.GetVariable("thymio-II", "prox.ground.reflected")) < 380)):
                 counter += 1
             else:
                 counter = 0
 
-            if (puck_center[0] < self.has_puck_threshold and puck_size > 0.05 and goal_size > 0.01 and goal_center[1] > 0.2 and goal_center[1] < 0.8):
+            if (hasPuck and goal_size > 0.01):
                 seeGoal = True
             else:
                 seeGoal = False
 
             if (puck_center[0] < self.has_puck_threshold and puck_size > 0.05):
                 hasPuck = True
-            else:
-                hasPuck = False
+                #else:
+                #hasPuck = False
 
-            if(puck_size > 0.01):
+            if(puck_size > 0.01 or hasPuck):
                 seePuck = True
             else:
                 seePuck = False
@@ -75,6 +78,7 @@ class ObjectDetector():
                 if hasPuck:
                     if seeGoal:
                         motorspeed = { 'left': 1.0, 'right': 1.0 }
+                    
                     else:
                         motorspeed = { 'left': 0.4, 'right': -0.4 }
                 else:
@@ -82,7 +86,14 @@ class ObjectDetector():
             else:
                 motorspeed = { 'left': 0.4, 'right': -0.4 }
 
-            writeMotorSpeed(self.thymioController, motorspeed)
+            writeMotorSpeed(self.thymioController, motorspeed, max_motor_speed)
+        
+            if seePuck and not hasPuck and not seeGoal:
+                self.thymioController.SendEventName('SetColor', [0, 32, 0, 0], reply_handler=dbusReply, error_handler=dbusError)
+            if hasPuck and not seeGoal:
+                self.thymioController.SendEventName('SetColor', [0, 0, 32, 0], reply_handler=dbusReply, error_handler=dbusError)
+            if seeGoal:
+                self.thymioController.SendEventName('SetColor', [32, 0, 0, 0], reply_handler=dbusReply, error_handler=dbusError)
 
         self.thymioController.SendEventName('PlayFreq', [700, 0])
         time.sleep(1)

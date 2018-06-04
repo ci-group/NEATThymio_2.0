@@ -1,7 +1,7 @@
 import sys, os, errno, math, random
 import numpy as np
 
-max_motor_speed=50
+max_motor_speed=200
 RAND_MAX = sys.maxint
 LEFT = 0
 RIGHT = 1

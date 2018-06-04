@@ -24,19 +24,19 @@ response_default=1                      # bias in the nod. what is this used for
 feedforward=True
 
 # Set parameters social
-nBots = 4                               # number of bots, used as a proxy for number of robots (distributed system). when above 1, set dis_neat to True
+nBots = 3                              # number of bots, used as a proxy for number of robots (distributed system). when above 1, set dis_neat to True
 sim_dis_neat = True                       # should be true when we use simulation
 phys_dis_neat=False                        # if we use simulation, the physical phys_dis_neat is false
 reset_innovations = False               # reset innovation numbers after generations, false means the cNEAT algorithm
 nRun = 1                               # number of experiments (not used in physical tasks)
 
 # NEAT population parameters
-nGen = 100                              # number of generations
-popSize = 20                            # population size per bot
+nGen = 20                     # number of generations
+popSize = 8                            # population size per bot
 elitism = True
 target_species = math.floor(popSize/5)  # target species is the pop size divided by 3
 tournament_selection_k=1
-compatibility_threshold=3.0
+compatibility_threshold=1.0
 compatibility_threshold_delta=0.4
 min_elitism_size=3 #???
 young_age=10
@@ -151,6 +151,13 @@ def log_summary(run, botnumber, pop):
     nodes = []
     conns = []
     pop_backup = pop.giveBackUp()
+    species_backup = pop.giveBackUpSpecies()
+    
+    for specie in species_backup:
+        print "species id"
+        print specie.id
+        print "species size"
+        print len(specie.members)
 
     for i in pop_backup:
         fitness.append(i.stats['fitness'])
